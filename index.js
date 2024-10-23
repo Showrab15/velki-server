@@ -33,13 +33,18 @@ async function run() {
     const agentsCollection = client.db("velki").collection("agents");
     const SubAdminsCollection = client.db("velki").collection("sub-admins");
     const usersCollection = client.db("velki").collection("users");
+    const SiteAdminsCollection = client.db("velki").collection("site-admins");
 
     app.get('/users', async (req, res) => {
         const result = await usersCollection.find().toArray();
         // console.log(result)
         res.send(result)
     })
-
+    app.get('/site-admins', async (req, res) => {
+      const result = await SiteAdminsCollection.find().toArray();
+      // console.log(result)
+      res.send(result)
+  })
 
     app.post('/users', async (req, res) => {
         const user = req.body;
@@ -85,6 +90,33 @@ app.put('/agents/:id', async (req, res) => {
   } catch (error) {
     console.error('Error updating agent:', error);
     res.status(500).send({ message: 'Failed to update agent' });
+  }
+});
+
+// PUT route to update agent by ID
+app.put('/site-admins/:id', async (req, res) => {
+  const id = req.params.id;
+  const updatedSiteAdmin = req.body;
+
+  // Remove _id from updatedSiteAdmin to avoid trying to update it
+  delete updatedSiteAdmin._id;
+
+  try {
+    const query = { id: parseInt(id) };  // Ensure ID is parsed as an integer
+    const updateDoc = {
+      $set: updatedSiteAdmin,  // $set ensures that only the fields in updatedSiteAdmin are updated
+    };
+
+    const result = await SiteAdminsCollection.updateOne(query, updateDoc);
+
+    if (result.matchedCount === 0) {
+      res.status(404).send({ message: 'site admin not found' });
+    } else {
+      res.send(result);
+    }
+  } catch (error) {
+    console.error('Error updating site admin:', error);
+    res.status(500).send({ message: 'Failed to update site admin' });
   }
 });
 
