@@ -17,7 +17,7 @@ const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-    origin: 'https://www.velkie123live.com/', // Allow requests from this origin
+    origin: 'https://www.velkie123live.com', // Allow requests from this origin
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Specify allowed methods
     credentials: true // Allow credentials if needed
 }));
