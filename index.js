@@ -10,7 +10,7 @@ app.use(express.json());
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion ,ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bter72s.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 console.log(`Connecting to MongoDB as user: ${process.env.DB_USER}`);
 console.log(`Using connection URI: ${uri}`);
@@ -135,6 +135,52 @@ app.get('/sub-admins',async(req,res)=>{
   console.log(result);
 
 });
+
+
+// PATCH route to remove admin role by user ID
+app.patch('/users/:id/remove-admin', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const query = { _id: new ObjectId(id) }; // Correctly create an ObjectId instance
+    const updateDoc = {
+      $set: { role: 'user' }, // Change role to 'user'
+    };
+
+    const result = await usersCollection.updateOne(query, updateDoc);
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).send({ message: 'User not found or role already updated' });
+    }
+    res.send(result);
+  } catch (error) {
+    console.error('Error updating user role:', error);
+    res.status(500).send({ message: 'Failed to update user role' });
+  }
+});
+
+// PATCH route to make admin role by user ID
+app.patch('/users/:id/make-admin', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const query = { _id: new ObjectId(id) }; // Correctly create an ObjectId instance
+    const updateDoc = {
+      $set: { role: 'admin' }, // Change role to 'admin'
+    };
+
+    const result = await usersCollection.updateOne(query, updateDoc);
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).send({ message: 'User not found or role already updated' });
+    }
+    res.send(result);
+  } catch (error) {
+    console.error('Error updating user role:', error);
+    res.status(500).send({ message: 'Failed to update user role' });
+  }
+});
+
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
