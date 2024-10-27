@@ -12,19 +12,21 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+
+
+// Middleware
+
 const app = express();
 const port = process.env.PORT || 5000;
 
 // Middleware
-const corsOptions = {
-  origin: 'https://www.velkie123live.com', // Allow your live site
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Specify allowed methods
-  credentials: true // Allow credentials if needed
-};
-
-app.use(cors(corsOptions));
-
+app.use(cors({
+    origin: 'https://www.velkie123live.com', // Allow your frontend domain
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Specify allowed methods
+    credentials: true // Allow credentials if needed
+}));
 app.use(express.json());
+
 
 const { MongoClient, ServerApiVersion ,ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bter72s.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
