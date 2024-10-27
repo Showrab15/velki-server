@@ -16,11 +16,14 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({
-    origin: 'https://www.velkie123live.com', // Allow requests from this origin
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Specify allowed methods
-    credentials: true // Allow credentials if needed
-}));
+const corsOptions = {
+  origin: 'https://www.velkie123live.com', // Allow your live site
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Specify allowed methods
+  credentials: true // Allow credentials if needed
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 
 const { MongoClient, ServerApiVersion ,ObjectId } = require('mongodb');
@@ -193,6 +196,7 @@ app.patch('/users/:id/make-admin', async (req, res) => {
     res.status(500).send({ message: 'Failed to update user role' });
   }
 });
+
 
 
     // Send a ping to confirm a successful connection
