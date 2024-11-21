@@ -35,6 +35,7 @@ async function run() {
     const usersCollection = client.db("velki").collection("users");
     const SiteAdminsCollection = client.db("velki").collection("site-admins");
     const MasterAgentsCollection = client.db("velki").collection("master-agents");
+    const Velkix24_MasterAgentsCollection = client.db("velki").collection("velkix24-master-agents");
 
     app.get('/users', async (req, res) => {
         const result = await usersCollection.find().toArray();
@@ -46,8 +47,14 @@ async function run() {
       // console.log(result)
       res.send(result)
   })
+
     app.get('/master-agents', async (req, res) => {
       const result = await MasterAgentsCollection.find().toArray();
+      // console.log(result)
+      res.send(result)
+  })
+    app.get('/velkix24-master-agents', async (req, res) => {
+      const result = await Velkix24_MasterAgentsCollection.find().toArray();
       // console.log(result)
       res.send(result)
   })
