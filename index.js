@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config()
+const { ObjectId } = require("mongodb");
 
 const port = process.env.PORT || 5000
 //middleware
@@ -36,6 +37,7 @@ async function run() {
     const SiteAdminsCollection = client.db("velki").collection("site-admins");
     const MasterAgentsCollection = client.db("velki").collection("master-agents");
     const Velkix24_MasterAgentsCollection = client.db("velki").collection("velkix24-master-agents");
+    const whatsappLinksCollection = client.db("velki").collection("whatsapp-links");
 
     app.get('/users', async (req, res) => {
         const result = await usersCollection.find().toArray();
@@ -53,6 +55,10 @@ async function run() {
       // console.log(result)
       res.send(result)
   })
+
+  
+  
+
     app.get('/velkix24-master-agents', async (req, res) => {
       const result = await Velkix24_MasterAgentsCollection.find().toArray();
       // console.log(result)
@@ -79,32 +85,76 @@ app.get('/agents',async(req,res)=>{
 })
 
 
-// PUT route to update agent by ID
-app.put('/agents/:id', async (req, res) => {
-  const id = req.params.id;
-  const updatedAgent = req.body;
 
-  // Remove _id from updatedAgent to avoid trying to update it
-  delete updatedAgent._id;
+
+
+
+
+
+app.put("/master-agents/:_id", async (req, res) => {
+  const _id = new ObjectId(req.params._id); // Convert string ID to ObjectId
+  const updatedAgent = req.body; // Get the updated data from the request body
 
   try {
-    const query = { id: parseInt(id) };  // Ensure ID is parsed as an integer
-    const updateDoc = {
-      $set: updatedAgent,  // $set ensures that only the fields in updatedAgent are updated
-    };
-
-    const result = await agentsCollection.updateOne(query, updateDoc);
+    // Update the master agent in the collection
+    const result = await MasterAgentsCollection.updateOne(
+      { _id, type: "master-agent" }, // Match by `_id` and ensure it's a master agent
+      { $set: updatedAgent }
+    );
 
     if (result.matchedCount === 0) {
-      res.status(404).send({ message: 'Agent not found' });
-    } else {
-      res.send(result);
+      return res.status(404).send({ message: "Master agent not found" });
     }
+
+    res.send({
+      message: "Master agent updated successfully",
+      result,
+    });
   } catch (error) {
-    console.error('Error updating agent:', error);
-    res.status(500).send({ message: 'Failed to update agent' });
+    console.error("Error updating master agent:", error);
+    res.status(500).send({
+      message: "Failed to update master agent",
+      error: error.message,
+    });
   }
 });
+
+
+
+// Save WhatsApp links
+// app.post("/whatsapp-links", async (req, res) => {
+//   const { links } = req.body;
+//   if (!Array.isArray(links) || links.length !== 4) {
+//     return res.status(400).send({ message: "Invalid links array." });
+//   }
+//   const result = await whatsappLinksCollection.updateOne(
+//     { type: "whatsapp-links" },
+//     { $set: { links } },
+//     { upsert: true } // Create if not exists
+//   );
+//   res.send(result);
+// });
+
+// // Get WhatsApp links
+// app.get("/whatsapp-links", async (req, res) => {
+//   const document = await whatsappLinksCollection.findOne({
+//     type: "whatsapp-links",
+//   });
+//   res.send(document ? document.links : []);
+// });
+
+app.post("/api/whatsapp-links", async (req, res) => {
+  const { links } = req.body;
+  try {
+    // Save links in your desired collection or logic
+    console.log("Received links:", links);
+    res.status(200).send({ message: "WhatsApp links saved successfully!" });
+  } catch (error) {
+    console.error("Error saving WhatsApp links:", error);
+    res.status(500).send({ message: "Failed to save WhatsApp links." });
+  }
+});
+
 
 // PUT route to update agent by ID
 app.put('/site-admins/:id', async (req, res) => {
@@ -149,6 +199,24 @@ app.get('/sub-admins',async(req,res)=>{
 
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     // console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -170,115 +238,3 @@ app.listen(port,()=>{
 })
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//chat gpt
-
-
-// const express = require('express');
-// const cors = require('cors');
-// const { MongoClient, ServerApiVersion } = require('mongodb');
-// require('dotenv').config();
-
-// const app = express();
-// const port = process.env.PORT || 5000;
-
-// // Middleware
-// app.use(cors());
-// app.use(express.json());
-
-// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bter72s.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
-// const client = new MongoClient(uri, {
-//   serverApi: {
-//     version: ServerApiVersion.v1,
-//     strict: true,
-//     deprecationErrors: true,
-//   }
-// });
-
-// // Connect to MongoDB
-// async function run() {
-//   try {
-//     await client.connect();
-//     console.log("Connected to MongoDB!");
-
-//     const agentsCollection = client.db("velki").collection("agents");
-//     const SubAdminsCollection = client.db("velki").collection("sub-admins");
-//     const usersCollection = client.db("velki").collection("users");
-
-//     app.get('/api/users', async (req, res) => {
-//       const result = await usersCollection.find().toArray();
-//       res.send(result);
-//     });
-
-//     app.post('/api/users', async (req, res) => {
-//       const user = req.body;
-//       const existingUser = await usersCollection.findOne({ email: user.email });
-//       if (existingUser) {
-//         return res.send({ message: 'User already exists', existingUser });
-//       }
-//       const result = await usersCollection.insertOne(user);
-//       res.send(result);
-//     });
-
-//     app.get('/api/agents', async (req, res) => {
-//       const result = await agentsCollection.find().toArray();
-//       res.send(result);
-//     });
-
-//     // PUT route to update agent by ID
-//     app.put('/api/agents/:id', async (req, res) => {
-//       const id = req.params.id;
-//       const updatedAgent = req.body;
-//       delete updatedAgent._id;
-
-//       const query = { id: parseInt(id) };
-//       const updateDoc = { $set: updatedAgent };
-//       const result = await agentsCollection.updateOne(query, updateDoc);
-
-//       if (result.matchedCount === 0) {
-//         res.status(404).send({ message: 'Agent not found' });
-//       } else {
-//         res.send(result);
-//       }
-//     });
-
-//     app.get('/api/sub-admins', async (req, res) => {
-//       const result = await SubAdminsCollection.find().toArray();
-//       res.send(result);
-//     });
-
-//     app.post("/api/add-sub-admins", async (req, res) => {
-//       const body = req.body;
-//       const result = await SubAdminsCollection.insertOne(body);
-//       res.send(result);
-//     });
-
-//   } catch (error) {
-//     console.error("Error connecting to the database:", error);
-//   }
-// }
-
-// run().catch(console.dir);
-
-// // Basic health check
-// app.get('/', (req, res) => {
-//   res.send("API is running");
-// });
-
-// // Vercel export
-// module.exports = app;
