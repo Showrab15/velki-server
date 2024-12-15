@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
-const cors = require("cors");
-require("dotenv").config();
+const cors = require('cors');
+require('dotenv').config()
 const { ObjectId } = require("mongodb");
 
 const port = process.env.PORT || 5000;
@@ -32,15 +32,9 @@ async function run() {
     const SubAdminsCollection = client.db("velki").collection("sub-admins");
     const usersCollection = client.db("velki").collection("users");
     const SiteAdminsCollection = client.db("velki").collection("site-admins");
-    const MasterAgentsCollection = client
-      .db("velki")
-      .collection("master-agents");
-    const Velkix24_MasterAgentsCollection = client
-      .db("velki")
-      .collection("velkix24-master-agents");
-    const whatsappLinksCollection = client
-      .db("velki")
-      .collection("whatsapp-links");
+    const MasterAgentsCollection = client.db("velki").collection("master-agents");
+    const Velkix24_MasterAgentsCollection = client.db("velki").collection("velkix24-master-agents");
+    const whatsappLinksCollection = client.db("velki").collection("whatsapp-links");
 
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
@@ -56,10 +50,13 @@ async function run() {
     app.get("/master-agents", async (req, res) => {
       const result = await MasterAgentsCollection.find().toArray();
       // console.log(result)
-      res.send(result);
-    });
+      res.send(result)
+  })
 
-    app.get("/velkix24-master-agents", async (req, res) => {
+  
+  
+
+    app.get('/velkix24-master-agents', async (req, res) => {
       const result = await Velkix24_MasterAgentsCollection.find().toArray();
       // console.log(result)
       res.send(result);
@@ -77,72 +74,83 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/agents", async (req, res) => {
-      const result = await agentsCollection.find().toArray();
-      res.send(result);
+    
+app.get('/agents',async(req,res)=>{
+    const result =  await agentsCollection.find().toArray();
+    res.send(result)
+})
+
+
+
+
+
+
+
+
+app.put("/master-agents/:_id", async (req, res) => {
+  const _id = new ObjectId(req.params._id); // Convert string ID to ObjectId
+  const updatedAgent = req.body; // Get the updated data from the request body
+
+  try {
+    // Update the master agent in the collection
+    const result = await MasterAgentsCollection.updateOne(
+      { _id, type: "master-agent" }, // Match by `_id` and ensure it's a master agent
+      { $set: updatedAgent }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).send({ message: "Master agent not found" });
+    }
+
+    res.send({
+      message: "Master agent updated successfully",
+      result,
     });
-
-    app.put("/master-agents/:_id", async (req, res) => {
-      const _id = new ObjectId(req.params._id); // Convert string ID to ObjectId
-      const updatedAgent = req.body; // Get the updated data from the request body
-
-      try {
-        // Update the master agent in the collection
-        const result = await MasterAgentsCollection.updateOne(
-          { _id, type: "master-agent" }, // Match by `_id` and ensure it's a master agent
-          { $set: updatedAgent }
-        );
-
-        if (result.matchedCount === 0) {
-          return res.status(404).send({ message: "Master agent not found" });
-        }
-
-        res.send({
-          message: "Master agent updated successfully",
-          result,
-        });
-      } catch (error) {
-        console.error("Error updating master agent:", error);
-        res.status(500).send({
-          message: "Failed to update master agent",
-          error: error.message,
-        });
-      }
+  } catch (error) {
+    console.error("Error updating master agent:", error);
+    res.status(500).send({
+      message: "Failed to update master agent",
+      error: error.message,
     });
+  }
+});
 
-    // Save WhatsApp links
-    // app.post("/whatsapp-links", async (req, res) => {
-    //   const { links } = req.body;
-    //   if (!Array.isArray(links) || links.length !== 4) {
-    //     return res.status(400).send({ message: "Invalid links array." });
-    //   }
-    //   const result = await whatsappLinksCollection.updateOne(
-    //     { type: "whatsapp-links" },
-    //     { $set: { links } },
-    //     { upsert: true } // Create if not exists
-    //   );
-    //   res.send(result);
-    // });
 
-    // // Get WhatsApp links
-    // app.get("/whatsapp-links", async (req, res) => {
-    //   const document = await whatsappLinksCollection.findOne({
-    //     type: "whatsapp-links",
-    //   });
-    //   res.send(document ? document.links : []);
-    // });
 
-    app.post("/api/whatsapp-links", async (req, res) => {
-      const { links } = req.body;
-      try {
-        // Save links in your desired collection or logic
-        console.log("Received links:", links);
-        res.status(200).send({ message: "WhatsApp links saved successfully!" });
-      } catch (error) {
-        console.error("Error saving WhatsApp links:", error);
-        res.status(500).send({ message: "Failed to save WhatsApp links." });
-      }
-    });
+// Save WhatsApp links
+// app.post("/whatsapp-links", async (req, res) => {
+//   const { links } = req.body;
+//   if (!Array.isArray(links) || links.length !== 4) {
+//     return res.status(400).send({ message: "Invalid links array." });
+//   }
+//   const result = await whatsappLinksCollection.updateOne(
+//     { type: "whatsapp-links" },
+//     { $set: { links } },
+//     { upsert: true } // Create if not exists
+//   );
+//   res.send(result);
+// });
+
+// // Get WhatsApp links
+// app.get("/whatsapp-links", async (req, res) => {
+//   const document = await whatsappLinksCollection.findOne({
+//     type: "whatsapp-links",
+//   });
+//   res.send(document ? document.links : []);
+// });
+
+app.post("/api/whatsapp-links", async (req, res) => {
+  const { links } = req.body;
+  try {
+    // Save links in your desired collection or logic
+    console.log("Received links:", links);
+    res.status(200).send({ message: "WhatsApp links saved successfully!" });
+  } catch (error) {
+    console.error("Error saving WhatsApp links:", error);
+    res.status(500).send({ message: "Failed to save WhatsApp links." });
+  }
+});
+
 
     // PUT route to update agent by ID
     app.put("/site-admins/:id", async (req, res) => {
@@ -176,13 +184,32 @@ async function run() {
       res.send(result);
     });
 
-    //server url for the added toys in the client site by user
-    app.post("/add-sub-admins", async (req, res) => {
-      const body = req.body;
-      const result = await SubAdminsCollection.insertOne(body);
-      res.send(result);
-      console.log(result);
-    });
+ //server url for the added toys in the client site by user
+ app.post("/add-sub-admins", async (req, res) => {
+  const body = req.body;
+  const result = await SubAdminsCollection.insertOne(body);
+  res.send(result);
+  console.log(result);
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
@@ -194,10 +221,14 @@ async function run() {
 }
 run().catch(console.dir);
 
-app.get("/", (req, res) => {
-  res.send("bossss is running");
-});
 
-app.listen(port, () => {
-  console.log(`velki agents master are sitting on port ${port}`);
-});
+
+app.get('/',(req,res)=>{
+    res.send("bossss is running")
+})
+
+app.listen(port,()=>{
+    console.log(`velki agents master are sitting on port ${port}`)
+})
+
+
