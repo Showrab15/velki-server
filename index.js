@@ -33,8 +33,10 @@ async function run() {
     const usersCollection = client.db("velki").collection("users");
     const SiteAdminsCollection = client.db("velki").collection("site-admins");
     const MasterAgentsCollection = client.db("velki").collection("master-agents");
+    const SuperAgentsCollection = client.db("velki").collection("super-agents");
     const Velkix24_MasterAgentsCollection = client.db("velki").collection("velkix24-master-agents");
     const whatsappLinksCollection = client.db("velki").collection("whatsapp-links");
+    const superAgentswhatsappLinksCollection = client.db("velki").collection("super-agents-whatsapp-links");
 
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
@@ -54,7 +56,11 @@ async function run() {
   })
 
   
-  
+  app.get("/super-agents", async (req, res) => {
+    const result = await SuperAgentsCollection.find().toArray();
+    // console.log(result)
+    res.send(result)
+})
 
     app.get('/velkix24-master-agents', async (req, res) => {
       const result = await Velkix24_MasterAgentsCollection.find().toArray();
@@ -150,6 +156,26 @@ app.post("/api/whatsapp-links", async (req, res) => {
     res.status(500).send({ message: "Failed to save WhatsApp links." });
   }
 });
+
+
+
+app.post("/api/super-agents-whatsapp-links", async (req, res) => {
+  const { links } = req.body;
+  try {
+    // Save links in your desired collection or logic
+    console.log("Received links:", links);
+    res.status(200).send({ message: "WhatsApp links saved successfully!" });
+  } catch (error) {
+    console.error("Error saving WhatsApp links:", error);
+    res.status(500).send({ message: "Failed to save WhatsApp links." });
+  }
+});
+
+
+
+
+
+
 
 
     // PUT route to update agent by ID
