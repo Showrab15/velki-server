@@ -123,19 +123,6 @@ app.put("/master-agents/:_id", async (req, res) => {
 
 
 
-// Save WhatsApp links
-// app.post("/whatsapp-links", async (req, res) => {
-//   const { links } = req.body;
-//   if (!Array.isArray(links) || links.length !== 4) {
-//     return res.status(400).send({ message: "Invalid links array." });
-//   }
-//   const result = await whatsappLinksCollection.updateOne(
-//     { type: "whatsapp-links" },
-//     { $set: { links } },
-//     { upsert: true } // Create if not exists
-//   );
-//   res.send(result);
-// });
 
 // // Get WhatsApp links
 // app.get("/whatsapp-links", async (req, res) => {
