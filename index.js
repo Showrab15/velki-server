@@ -6,7 +6,18 @@ const { ObjectId } = require("mongodb");
 
 const port = process.env.PORT || 5000;
 //middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    "https://www.valkilive123.com/",
+    "https://www.velkiallagent123.pro/",
+    "https://www.valkiiallmaster.live/",
+    "https://www.winpdu.live/",
+    "https://www.velkiallagent123.live/", // your deployed frontend domain
+    "http://localhost:5173" // keep localhost for dev
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 
 const { MongoClient, ServerApiVersion } = require("mongodb");
